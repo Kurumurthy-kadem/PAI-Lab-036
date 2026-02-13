@@ -1,0 +1,43 @@
+
+def heuristic(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+
+
+def select_nearest_order(current_position, orders):
+    return min(orders, key=lambda order: heuristic(current_position, order))
+
+
+
+def heuristic_order_picking(start, orders):
+    current_position = start
+    remaining_orders = orders.copy()
+    picking_sequence = [start]
+
+    while remaining_orders:
+        
+        next_order = select_nearest_order(current_position, remaining_orders)
+
+        picking_sequence.append(next_order)
+
+
+        current_position = next_order
+        remaining_orders.remove(next_order)
+
+    return picking_sequence
+
+
+
+
+start_position = (0, 0)
+orders = [
+    (4, 2),
+    (2, 1),
+    (1, 2)
+]
+
+sequence = heuristic_order_picking(start_position, orders)
+
+print("Order Picking Sequence:")
+for step in sequence:
+    print(step)
