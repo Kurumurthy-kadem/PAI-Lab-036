@@ -1,0 +1,37 @@
+class GraphColoringCSP:
+    def __init__(self, graph, colors):
+        self.graph = graph
+        self.colors = colors
+        self.vertices = list(graph.keys())
+    def is_safe(self, vertex, color, assignment):
+        for neighbor in self.graph[vertex]:
+            if neighbor in assignment and assignment[neighbor] == color:
+                return False
+        return True
+    def backtrack(self, assignment=None):
+        if assignment is None:
+            assignment = {}
+        if len(assignment) == len(self.vertices):
+            print("Color Assignment Found:")
+            for vertex in assignment:
+                print(vertex, "->", assignment[vertex])
+            return True
+        for vertex in self.vertices:
+            if vertex not in assignment:
+                break
+        for color in self.colors:
+            if self.is_safe(vertex, color, assignment):
+                assignment[vertex] = color
+                if self.backtrack(assignment):
+                    return True
+                del assignment[vertex]  # Backtrack
+        return False
+graph = {
+    'A': ['B', 'C'],
+    'B': ['A', 'C', 'D'],
+    'C': ['A', 'B', 'D'],
+    'D': ['B', 'C']
+}
+colors = ['Red', 'Green', 'Blue']
+csp = GraphColoringCSP(graph, colors)
+csp.backtrack()
