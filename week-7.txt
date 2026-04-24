@@ -1,0 +1,44 @@
+states = ['Rainy', 'Sunny']
+observations = ['Walk', 'Shop', 'Clean']
+
+# Initial probabilities
+start_prob = {'Rainy': 0.6, 'Sunny': 0.4}
+
+# Transition probabilities
+trans_prob = {
+    'Rainy': {'Rainy': 0.7, 'Sunny': 0.3},
+    'Sunny': {'Rainy': 0.4, 'Sunny': 0.6}
+}
+
+# Emission probabilities
+emit_prob = {
+    'Rainy': {'Walk': 0.1, 'Shop': 0.4, 'Clean': 0.5},
+    'Sunny': {'Walk': 0.6, 'Shop': 0.3, 'Clean': 0.1}
+}
+
+# Observation sequence
+obs_seq = ['Walk', 'Shop', 'Clean']
+
+# Forward Algorithm
+def forward(obs_seq):
+    V = [{}]
+
+    # Initialization
+    for s in states:
+        V[0][s] = start_prob[s] * emit_prob[s][obs_seq[0]]
+
+    # Recursion
+    for t in range(1, len(obs_seq)):
+        V.append({})
+        for s in states:
+            V[t][s] = sum(
+                V[t-1][prev_s] *
+                trans_prob[prev_s][s] *
+                emit_prob[s][obs_seq[t]]
+                for prev_s in states
+            )
+
+    # Final probability
+    return sum(V[-1][s] for s in states)
+
+print("Probability of observation sequence:", forward(obs_seq))
