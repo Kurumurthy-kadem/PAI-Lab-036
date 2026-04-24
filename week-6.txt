@@ -1,0 +1,57 @@
+from pgmpy.models import DiscreteBayesianNetwork
+from pgmpy.factors.discrete import TabularCPD
+from pgmpy.inference import VariableElimination
+
+# Step 1: Define structure
+model = DiscreteBayesianNetwork([
+    ('Rain', 'Traffic'),
+    ('Rain', 'Late'),
+    ('Traffic', 'Late')
+])
+
+# Step 2: Define CPTs
+
+cpd_rain = TabularCPD(
+    variable='Rain',
+    variable_card=2,
+    values=[[0.7], [0.3]]  # No Rain, Rain
+)
+
+cpd_traffic = TabularCPD(
+    variable='Traffic',
+    variable_card=2,
+    values=[
+        [0.8, 0.3],  # No Traffic
+        [0.2, 0.7]   # Traffic
+    ],
+    evidence=['Rain'],
+    evidence_card=[2]
+)
+
+cpd_late = TabularCPD(
+    variable='Late',
+    variable_card=2,
+    values=[
+        [0.9, 0.4, 0.6, 0.1],  # Not Late
+        [0.1, 0.6, 0.4, 0.9]   # Late
+    ],
+    evidence=['Rain', 'Traffic'],
+    evidence_card=[2, 2]
+)
+
+# Step 3: Add CPDs to model
+model.add_cpds(cpd_rain, cpd_traffic, cpd_late)
+
+# Step 4: Validate model
+print("Model valid:", model.check_model())
+
+# Step 5: Inference
+inference = VariableElimination(model)
+
+# Query: Probability of being Late
+result = inference.query(variables=['Late'])
+print(result)
+
+# Query: P(Late | Rain = 1)
+result2 = inference.query(variables=['Late'], evidence={'Rain': 1})
+print(result2)
